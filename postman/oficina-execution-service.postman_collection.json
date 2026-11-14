@@ -1,0 +1,212 @@
+{
+  "info": {
+    "name": "oficina-execution-service",
+    "description": "Rotas do execution-service (Fase 4). Defina baseUrl (ex.: http://localhost:3003) e token (JWT HS256 assinado com JWT_SECRET). Datas em epoch ms.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3003"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "osId",
+      "value": "teste-os-1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    },
+    {
+      "name": "Métricas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/metrics",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "metrics"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    },
+    {
+      "name": "Fila",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/execucoes/fila",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "execucoes",
+            "fila"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Execução + linha do tempo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/execucoes/{{osId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "execucoes",
+            "{{osId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Iniciar diagnóstico",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/execucoes/{{osId}}/diagnostico",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "execucoes",
+            "{{osId}}",
+            "diagnostico"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"observacao\": \"Ruído na suspensão\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Iniciar reparo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/execucoes/{{osId}}/reparo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "execucoes",
+            "{{osId}}",
+            "reparo"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"observacao\": \"Troca do amortecedor\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Finalizar",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/execucoes/{{osId}}/finalizar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "execucoes",
+            "{{osId}}",
+            "finalizar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Falhar (compensação da saga)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/execucoes/{{osId}}/falhar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "execucoes",
+            "{{osId}}",
+            "falhar"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"motivo\": \"Peça indisponível no fornecedor\"\n}"
+        }
+      }
+    }
+  ]
+}

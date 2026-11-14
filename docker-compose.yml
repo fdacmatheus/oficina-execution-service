@@ -1,0 +1,22 @@
+# Sobe so a API. A infra (Floci com SQS e DynamoDB) vem do compose compartilhado
+# em ../local (projeto oficina-local), cuja rede e usada aqui como externa.
+name: oficina-execution
+
+services:
+  api:
+    build: .
+    ports: ['3003:3003']
+    env_file: [.env]
+    environment:
+      PORT: 3003
+      LOG_FORMAT: json
+      AWS_ENDPOINT_URL: http://floci:4566
+      SQS_EXECUTION_COMANDOS_URL: http://floci:4566/000000000000/execution-comandos
+      SQS_OS_EVENTOS_URL: http://floci:4566/000000000000/os-eventos
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    networks: [oficina-local]
+
+networks:
+  oficina-local:
+    name: oficina-local_default
+    external: true
