@@ -28,6 +28,8 @@ async function bootstrap() {
     .setDescription('Fila de execução da OS, diagnóstico, reparo e linha do tempo')
     .setVersion('4.0.0')
     .addBearerAuth()
+    // Atrás do API Gateway o serviço fica sob um prefixo (/os, /billing, /execution).
+    .addServer(process.env.SWAGGER_PREFIXO ?? '/', 'Ambiente atual')
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, swagger), {
     swaggerOptions: { persistAuthorization: true },

@@ -87,12 +87,14 @@ jobs:
         run: aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
 
       - name: Secret (nao versionado)
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
+          # Segredos da plataforma (JWT, chave interna, admin): gerados pelo repositório
+          # oficina-fase4-infra no Secrets Manager. Nada disso fica no GitHub.
+          PLAT=$(aws secretsmanager get-secret-value --secret-id oficina/plataforma/segredos --query SecretString --output text)
+          jsonv() { echo "$PLAT" | jq -r ".$1"; }
           kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
           kubectl -n "$NAMESPACE" create secret generic oficina-execution-secrets \
-            --from-literal=JWT_SECRET="$JWT_SECRET" \
+            --from-literal=JWT_SECRET="$(jsonv JWT_SECRET)" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Aplicar manifestos
