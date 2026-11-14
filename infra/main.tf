@@ -77,3 +77,59 @@ resource "aws_sqs_queue" "comandos" {
     maxReceiveCount     = 5
   })
 }
+
+# ---------------------------------------------------------------------------
+# Acesso dos pods à fila. O Learner Lab não permite alterar a role dos nodes do
+# EKS (LabEksNodeRole), então a permissão é dada do lado do recurso: só essa
+# role, só as ações de mensageria. Todos os serviços rodam nos mesmos nodes, então
+# os produtores (outros serviços) e o consumidor (este) usam a mesma role.
+# ---------------------------------------------------------------------------
+data "aws_iam_roles" "nodes_eks" {
+  name_regex = ".*LabEksNodeRole.*"
+}
+
+resource "aws_sqs_queue_policy" "comandos" {
+  queue_url = aws_sqs_queue.comandos.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "PodsDoEks"
+      Effect    = "Allow"
+      Principal = { AWS = tolist(data.aws_iam_roles.nodes_eks.arns) }
+      Action = [
+        "sqs:SendMessage",
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:ChangeMessageVisibility",
+        "sqs:GetQueueAttributes",
+      ]
+      Resource = aws_sqs_queue.comandos.arn
+    }]
+  })
+}
+
+# Mesma ideia para a tabela: política de recurso do DynamoDB para a role dos nodes.
+resource "aws_dynamodb_resource_policy" "execucoes" {
+  resource_arn = aws_dynamodb_table.execucoes.arn
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "PodsDoEks"
+      Effect    = "Allow"
+      Principal = { AWS = tolist(data.aws_iam_roles.nodes_eks.arns) }
+      Action = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:DescribeTable",
+      ]
+      Resource = [aws_dynamodb_table.execucoes.arn, "${aws_dynamodb_table.execucoes.arn}/index/*"]
+    }]
+  })
+}
+
